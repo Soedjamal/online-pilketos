@@ -89,9 +89,7 @@ const VotePage = () => {
                                     />
                                     <CardContent>
                                         <Typography variant="h5">{candidate.name}</Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Suara: {candidate.votes ?? 0}
-                                        </Typography>
+
                                         <Button
                                             variant="contained"
                                             color="primary"
