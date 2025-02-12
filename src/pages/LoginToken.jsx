@@ -60,7 +60,6 @@ const LoginToken = () => {
       localStorage.setItem("userName", studentData.name);
 
       // Tandai siswa sebagai sudah memilih
-      await updateDoc(doc(db, "students", studentDoc.id), { voted: true });
 
       // Redirect ke halaman vote
       navigate("/vote");
