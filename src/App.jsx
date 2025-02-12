@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./utils/protectedRoute";
 import LoginToken from "./pages/LoginToken";
 import VotePage from "./pages/VotePage";
 import ResultsPage from "./pages/ResultsPage";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 const App = () => {
   return (

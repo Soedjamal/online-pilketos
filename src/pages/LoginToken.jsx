@@ -37,7 +37,7 @@ const LoginToken = () => {
 
             // Cek apakah siswa sudah memilih
             if (studentData.voted) {
-                setError(`${studentData.name.slice(0, 7)}... kamu udah pernah memilih ya😘`);
+                setError(`${studentData.name} kamu udah pernah memilih ya`);
                 return;
             }
 
@@ -71,7 +71,7 @@ const LoginToken = () => {
                         onChange={(e) => setToken(e.target.value)}
                         sx={{ mb: 2 }}
                     />
-                    {error && <Alert severity="error">{error}</Alert>}
+                    {error && <Alert style={{ marginBottom: "10px" }} severity="error">{error}</Alert>}
                     <Button type="submit" variant="contained" color="primary" fullWidth>
                         Lanjutkan
                     </Button>
