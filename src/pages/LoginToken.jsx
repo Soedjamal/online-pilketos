@@ -58,9 +58,6 @@ const LoginToken = () => {
         return;
       }
 
-      if (error.length > 0) {
-        setLoading(false)
-      }
 
       // Simpan token di localStorage agar sesi tetap berjalan
       localStorage.setItem("userToken", token);
