@@ -21,14 +21,17 @@ import { db } from "../lib/firebase.js";
 const LoginToken = () => {
   const [token, setToken] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
 
   const handleTokenSubmit = async (e) => {
+    setLoading(true)
     e.preventDefault();
     setError(null);
 
     if (!token.trim()) {
       setError("Token tidak boleh kosong!");
+      setLoading(false)
       return;
     }
 
@@ -55,6 +58,10 @@ const LoginToken = () => {
         return;
       }
 
+      if (error.length > 0) {
+        setLoading(false)
+      }
+
       // Simpan token di localStorage agar sesi tetap berjalan
       localStorage.setItem("userToken", token);
       localStorage.setItem("userName", studentData.name);
@@ -64,23 +71,27 @@ const LoginToken = () => {
       // Redirect ke halaman vote
       navigate("/vote");
     } catch (err) {
+      setLoading(false)
       setError("Terjadi kesalahan, coba lagi.");
       console.error("Error:", err);
+    } finally {
+      setLoading(false)
     }
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" >
       <Box textAlign="center" mt={5}>
         <Typography
           variant="h4"
-          marginBottom="20px"
+          marginBottom="60px"
           fontWeight="700"
           gutterBottom
         >
-          Pilih Calon Ketua OSIS
+          Pilih Ketua OSIS
         </Typography>
-        <form onSubmit={handleTokenSubmit}>
+        <form onSubmit={handleTokenSubmit} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", alignItems: "start" }}>
+          <Typography variant="subtitle1" fontWeight="600" color="#404040" marginY="10px" >Masukkan Token</Typography>
           <TextField
             fullWidth
             label="Token"
@@ -90,12 +101,12 @@ const LoginToken = () => {
             sx={{ mb: 2 }}
           />
           {error && (
-            <Alert style={{ marginBottom: "10px" }} severity="error">
+            <Alert style={{ width: "90%", marginBottom: "10px" }} severity="error">
               {error}
             </Alert>
           )}
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Lanjutkan
+          <Button type="submit" variant="outlined" disabled={loading} style={{ color: "rgb(200, 200, 200)", fontWeight: "700", backgroundColor: "#404040", padding: "15px 20px" }} fullWidth>
+            {loading ? "Mengirim..." : "Kirim"}
           </Button>
         </form>
       </Box>

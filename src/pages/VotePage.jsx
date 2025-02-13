@@ -74,7 +74,7 @@ const VotePage = () => {
       await updateDoc(doc(db, "students", studentDoc.id), { voted: true });
 
       setMessage("Terima kasih! Suara Anda telah tercatat.");
-      setTimeout(() => navigate("/"), 2000); // Redirect setelah 2 detik
+      setTimeout(() => navigate("/success"), 2000); // Redirect setelah 2 detik
     } catch (err) {
       console.error("Error voting:", err);
       setError("Gagal mengirim suara, coba lagi.");
