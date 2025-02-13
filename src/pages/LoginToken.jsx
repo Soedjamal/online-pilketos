@@ -79,16 +79,29 @@ const LoginToken = () => {
   return (
     <Container maxWidth="sm" >
       <Box textAlign="center" mt={5}>
+        <div className="img-container">
+          <img src="https://ik.imagekit.io/nir38m3b3/Untitled%20design_20250213_090126_0000.png?updatedAt=1739412652101" alt="" style={{ width: "150px" }} />
+        </div>
         <Typography
-          variant="h4"
-          marginBottom="60px"
+          variant="body1"
+          marginBottom="5px"
           fontWeight="700"
+          color="rgb(100, 100, 100)"
           gutterBottom
         >
-          Pilih Ketua OSIS
+          PEMILIHAN KETUA DAN WAKIL KETUA OSIS PERIODE TAHUN 2025/2026
+        </Typography>
+        <Typography
+          variant="h6"
+          marginBottom="50px"
+          fontWeight="700"
+          color="#006787"
+          gutterBottom
+        >
+          SMK NEGERI 5 KENDAL
         </Typography>
         <form onSubmit={handleTokenSubmit} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", alignItems: "start" }}>
-          <Typography variant="subtitle1" fontWeight="600" color="#404040" marginY="10px" >Masukkan Token</Typography>
+          <Typography variant="subtitle1" fontWeight="600" color="#404040" marginY="10px" >Masukkan Token*</Typography>
           <TextField
             fullWidth
             label="Token"
@@ -102,7 +115,7 @@ const LoginToken = () => {
               {error}
             </Alert>
           )}
-          <Button type="submit" variant="outlined" disabled={loading} style={{ color: "rgb(200, 200, 200)", fontWeight: "700", backgroundColor: "#404040", padding: "15px 20px" }} fullWidth>
+          <Button type="submit" variant="outlined" disabled={loading} style={{ color: "rgb(200, 200, 200)", fontWeight: "700", backgroundColor: "#006787", padding: "15px 20px" }} fullWidth>
             {loading ? "Mengirim..." : "Kirim"}
           </Button>
         </form>

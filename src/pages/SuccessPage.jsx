@@ -1,8 +1,11 @@
-import React from 'react'
+
+import { Typography } from '@mui/material'
 
 const SuccessPage = () => {
     return (
-        <div>SuccessPage</div>
+        <>
+            <Typography textAlign="center" marginTop="40px" variant='h5' fontWeight="700" color="rgb(100,100,100)">Berhasil memilih.👀</Typography>
+        </>
     )
 }
 

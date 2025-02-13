@@ -26,6 +26,7 @@ import { db } from "../lib/firebase";
 const VotePage = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const VotePage = () => {
   }, []);
 
   const handleVote = async (candidateId) => {
+    setSubmitLoading(true)
     const token = localStorage.getItem("userToken");
 
     const q = query(collection(db, "students"), where("token", "==", token));
@@ -69,7 +71,7 @@ const VotePage = () => {
         votes: increment(1),
       });
       localStorage.removeItem("userToken");
-      localStorage.removeItem("userName");
+      // localStorage.removeItem("userName");
 
       await updateDoc(doc(db, "students", studentDoc.id), { voted: true });
 
@@ -78,6 +80,8 @@ const VotePage = () => {
     } catch (err) {
       console.error("Error voting:", err);
       setError("Gagal mengirim suara, coba lagi.");
+    } finally {
+      setSubmitLoading(false)
     }
   };
 
@@ -98,8 +102,8 @@ const VotePage = () => {
 
   return (
     <Container maxWidth="md">
-      <Box textAlign="center" mt={5}>
-        <Typography variant="h4" gutterBottom>
+      <Box textAlign="center" mt={5} marginBottom="50px">
+        <Typography variant="h5" fontWeight="700" color="#006787" textAlign="center" marginBottom="50px" gutterBottom>
           Pilih Kandidat Ketua OSIS
         </Typography>
 
@@ -111,39 +115,51 @@ const VotePage = () => {
         ) : (
           <Grid container spacing={3} justifyContent="center">
             {candidates.map((candidate) => (
-              <Grid item xs={12} sm={6} key={candidate.id}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    height="250"
-                    image={candidate.photo || "https://via.placeholder.com/250"} // Placeholder jika tidak ada gambar
-                    alt={candidate.name}
-                  />
+              <Grid style={{}} item xs={12} sm={6} key={candidate.id}>
+                <Card style={{ border: "2px solid rgb(220, 220, 220)", borderRadius: "15px" }}>
+
+                  <div style={{ padding: "20px 20px 0 20px" }}>
+                    <CardMedia
+                      component="img"
+                      height="250"
+                      image={candidate.photo} // Placeholder jika tidak ada gambar
+                      alt={candidate.name}
+                    />
+                  </div>
+
                   <CardContent>
-                    <Typography variant="h5">{candidate.name}</Typography>
+                    <div style={{
+                      display: "flex", flexDirection: "column", alignItems: "start"
+                    }}>
+                      <Typography fontWeight="700" color="" variant="subtitle2">{candidate.ketua}</Typography>
+                      <Typography fontWeight="700" variant="subtitle2">{candidate.wakil}</Typography>
+                    </div>
 
                     <Button
-                      variant="contained"
-                      color="primary"
-                      fullWidth
+                      type="submit"
+                      variant="outlined"
+                      disabled={loading}
                       onClick={() => handleVote(candidate.id)}
                       sx={{ mt: 2 }}
-                    >
-                      Pilih {candidate.name}
+
+                      style={{ color: "rgb(255, 255, 255)", fontWeight: "700", backgroundColor: "#006787", padding: "15px 20px", borderRadius: "10px" }} fullWidth>
+                      {`Pilih Paslon ${candidate.paslon}`}
                     </Button>
                   </CardContent>
+
                 </Card>
               </Grid>
             ))}
+            {message && (
+              <Alert severity="success" sx={{ mt: 2 }}>
+                {message}
+              </Alert>
+            )}
           </Grid>
         )}
 
         {/* Pesan sukses */}
-        {message && (
-          <Alert severity="success" sx={{ mt: 2 }}>
-            {message}
-          </Alert>
-        )}
+
       </Box>
     </Container>
   );
