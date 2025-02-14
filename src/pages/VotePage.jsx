@@ -20,6 +20,8 @@ import {
   increment,
   query,
   where,
+  setDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
@@ -54,26 +56,60 @@ const VotePage = () => {
   }, []);
 
   const handleVote = async (candidateId) => {
-    setSubmitLoading(true)
+    setSubmitLoading(true);
     const token = localStorage.getItem("userToken");
 
-    const q = query(collection(db, "students"), where("token", "==", token));
-    const querySnapshot = await getDocs(q);
-    let studentDoc;
-    querySnapshot.forEach((doc) => {
-      studentDoc = doc;
-    });
-
     try {
-      // Update jumlah suara di Firestore
-      const candidateRef = doc(db, "candidates", candidateId);
-      await updateDoc(candidateRef, {
-        votes: increment(1),
-      });
-      localStorage.removeItem("userToken");
-      // localStorage.removeItem("userName");
+      if (token.slice(0, 2) === "TS") {
+        const q = query(collection(db, "teacher"), where("token", "==", token));
+        const querySnapshot = await getDocs(q);
+        let teacherDoc;
+        querySnapshot.forEach((doc) => {
+          teacherDoc = doc;
+        });
 
-      await updateDoc(doc(db, "students", studentDoc.id), { voted: true });
+        const candidateRef = doc(db, "candidates", candidateId);
+        await updateDoc(candidateRef, {
+          votes: increment(1),
+        });
+
+        await setDoc(doc(db, "voters", teacherDoc.id), {
+          voterToken: token, // Kode pemilih
+          selectedCandidate: candidateId, // Paslon yang dipilih
+          votedAt: serverTimestamp(), // Timestamp waktu voting
+        });
+
+        localStorage.removeItem("userToken");
+        // localStorage.removeItem("userName");
+
+        await updateDoc(doc(db, "teacher", teacherDoc.id), { voted: true });
+      } else {
+        const q = query(
+          collection(db, "students"),
+          where("token", "==", token),
+        );
+        const querySnapshot = await getDocs(q);
+        let studentDoc;
+        querySnapshot.forEach((doc) => {
+          studentDoc = doc;
+        });
+
+        const candidateRef = doc(db, "candidates", candidateId);
+        await updateDoc(candidateRef, {
+          votes: increment(1),
+        });
+
+        await setDoc(doc(db, "voters", studentDoc.id), {
+          voterToken: token, // Kode pemilih
+          selectedCandidate: candidateId, // Paslon yang dipilih
+          votedAt: serverTimestamp(), // Timestamp waktu voting
+        });
+
+        localStorage.removeItem("userToken");
+        // localStorage.removeItem("userName");
+
+        await updateDoc(doc(db, "students", studentDoc.id), { voted: true });
+      }
 
       setMessage("Terima kasih! Suara Anda telah tercatat.");
       setTimeout(() => navigate("/success"), 2000); // Redirect setelah 2 detik
@@ -81,7 +117,7 @@ const VotePage = () => {
       console.error("Error voting:", err);
       setError("Gagal mengirim suara, coba lagi.");
     } finally {
-      setSubmitLoading(false)
+      setSubmitLoading(false);
     }
   };
 
@@ -103,8 +139,15 @@ const VotePage = () => {
   return (
     <Container maxWidth="md">
       <Box textAlign="center" mt={5} marginBottom="50px">
-        <Typography variant="h5" fontWeight="700" color="#006787" textAlign="center" marginBottom="50px" gutterBottom>
-          Pilih Kandidat Ketua OSIS
+        <Typography
+          variant="h5"
+          fontWeight="700"
+          color="#006787"
+          textAlign="center"
+          marginBottom="50px"
+          gutterBottom
+        >
+          Pilih salah satu pasangan calon ketua dan wakil ketua OSIS
         </Typography>
 
         {/* Jika kandidat kosong, tampilkan pesan */}
@@ -116,8 +159,12 @@ const VotePage = () => {
           <Grid container spacing={3} justifyContent="center">
             {candidates.map((candidate) => (
               <Grid style={{}} item xs={12} sm={6} key={candidate.id}>
-                <Card style={{ border: "2px solid rgb(220, 220, 220)", borderRadius: "15px" }}>
-
+                <Card
+                  style={{
+                    border: "2px solid rgb(220, 220, 220)",
+                    borderRadius: "15px",
+                  }}
+                >
                   <div style={{ padding: "20px 20px 0 20px" }}>
                     <CardMedia
                       component="img"
@@ -128,25 +175,41 @@ const VotePage = () => {
                   </div>
 
                   <CardContent>
-                    <div style={{
-                      display: "flex", flexDirection: "column", alignItems: "start"
-                    }}>
-                      <Typography fontWeight="700" color="" variant="subtitle2">{candidate.ketua}</Typography>
-                      <Typography fontWeight="700" variant="subtitle2">{candidate.wakil}</Typography>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "start",
+                      }}
+                    >
+                      <Typography fontWeight="700" color="" variant="subtitle2">
+                        {candidate.ketua}
+                      </Typography>
+                      <Typography fontWeight="700" variant="subtitle2">
+                        {candidate.wakil}
+                      </Typography>
                     </div>
 
                     <Button
                       type="submit"
                       variant="outlined"
-                      disabled={loading}
+                      disabled={submitLoading}
                       onClick={() => handleVote(candidate.id)}
                       sx={{ mt: 2 }}
-
-                      style={{ color: "rgb(255, 255, 255)", fontWeight: "700", backgroundColor: "#006787", padding: "15px 20px", borderRadius: "10px" }} fullWidth>
-                      {`Pilih Paslon ${candidate.paslon}`}
+                      style={{
+                        color: "rgb(255, 255, 255)",
+                        fontWeight: "700",
+                        backgroundColor: "#006787",
+                        padding: "15px 20px",
+                        borderRadius: "10px",
+                      }}
+                      fullWidth
+                    >
+                      {submitLoading
+                        ? "Mengirim.."
+                        : `Pilih Paslon ${candidate.paslon}`}
                     </Button>
                   </CardContent>
-
                 </Card>
               </Grid>
             ))}
@@ -159,7 +222,6 @@ const VotePage = () => {
         )}
 
         {/* Pesan sukses */}
-
       </Box>
     </Container>
   );
