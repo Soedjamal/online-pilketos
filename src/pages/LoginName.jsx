@@ -8,18 +8,11 @@ import {
   Box,
   Alert,
 } from "@mui/material";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase.js";
 
-const LoginToken = () => {
-  const [token, setToken] = useState("");
+const LoginName = () => {
+  const [name, setName] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -29,93 +22,35 @@ const LoginToken = () => {
     e.preventDefault();
     setError(null);
 
-    if (!token.trim()) {
-      setError("Token tidak boleh kosong!");
+    if (!name.trim()) {
+      setError("Nama tidak boleh kosong!");
       setLoading(false);
       return;
     }
 
     try {
-      if (token.slice(0, 3) == "XII") {
-        const qS = query(
-          collection(db, "xiistudents"),
-          where("token", "==", token),
-        );
-        const querySnapshot = await getDocs(qS);
+      // if (name.slice(0, 3) == "XII") {
+      const qS = query(
+        collection(db, "xiistudents"),
+        where("name", "==", name),
+      );
+      const querySnapshot = await getDocs(qS);
 
-        let xiistudentsDoc;
-        querySnapshot.forEach((doc) => {
-          xiistudentsDoc = doc;
-        });
+      let xiistudentsDoc;
+      querySnapshot.forEach((doc) => {
+        xiistudentsDoc = doc;
+      });
 
-        const xiistudentsData = xiistudentsDoc.data();
+      const xiistudentsData = xiistudentsDoc.data();
 
-        if (xiistudentsData.voted) {
-          setError(`${xiistudentsData.name}, kamu sudah pernah memilih`);
-          return;
-        }
-
-        localStorage.setItem("userToken", token);
-        localStorage.setItem("userName", xiistudentsData.name);
-
-        navigate("/input-name");
+      if (xiistudentsData.voted) {
+        setError(`${xiistudentsData.name}, kamu sudah pernah memilih`);
         return;
       }
 
-      const userCheck = token.slice(0, 2);
-      if (userCheck === "TS") {
-        const qT = query(
-          collection(db, "teacher"),
-          where("token", "==", token),
-        );
-        const querySnapshot = await getDocs(qT);
-
-        let teacherDoc;
-        querySnapshot.forEach((doc) => {
-          teacherDoc = doc;
-        });
-
-        const teacherData = teacherDoc.data();
-
-        if (teacherData.voted) {
-          setError(`${teacherData.name}, kamu sudah pernah memilih`);
-          return;
-        }
-
-        localStorage.setItem("userToken", token);
-        localStorage.setItem("userName", teacherData.name);
-
-        navigate("/vote");
-        return;
-      } else {
-        const q = query(
-          collection(db, "students"),
-          where("token", "==", token),
-        );
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          setError("Token tidak valid! Periksa kembali token Anda.");
-          return;
-        }
-
-        let studentDoc;
-        querySnapshot.forEach((doc) => {
-          studentDoc = doc;
-        });
-
-        const studentData = studentDoc.data();
-
-        if (studentData.voted) {
-          setError(`${studentData.name}, kamu sudah pernah memilih`);
-          return;
-        }
-
-        localStorage.setItem("userToken", token);
-        localStorage.setItem("userName", studentData.name);
-
-        navigate("/vote");
-      }
+      navigate("/vote");
+      return;
+      // }
     } catch (err) {
       setLoading(false);
       setError("Terjadi kesalahan, coba lagi.");
@@ -168,15 +103,15 @@ const LoginToken = () => {
             color="#404040"
             marginY="10px"
           >
-            Masukkan Token*
+            Masukkan Nama Lengkap*
           </Typography>
           <TextField
             fullWidth
-            label="Token"
+            label="Contoh Penulisan: Fulana Binti Fulan"
             variant="outlined"
             style={{ outlineColor: "#006787" }}
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             sx={{ mb: 2 }}
           />
           {error && (
@@ -207,4 +142,4 @@ const LoginToken = () => {
   );
 };
 
-export default LoginToken;
+export default LoginName;

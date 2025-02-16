@@ -60,7 +60,36 @@ const VotePage = () => {
     const token = localStorage.getItem("userToken");
 
     try {
-      if (token.slice(0, 2) === "TS") {
+      if (token.slice(0, 3) == "XII") {
+        const qS = query(
+          collection(db, "xiistudents"),
+          where("token", "==", token),
+        );
+        const querySnapshot = await getDocs(qS);
+        let xiistudentDoc;
+        querySnapshot.forEach((doc) => {
+          xiistudentDoc = doc;
+        });
+
+        const candidateRef = doc(db, "candidates", candidateId);
+        await updateDoc(candidateRef, {
+          votes: increment(1),
+        });
+
+        await setDoc(doc(db, "voters", xiistudentDoc.id), {
+          voterToken: token, // Kode pemilih
+          selectedCandidate: candidateId, // Paslon yang dipilih
+          votedAt: serverTimestamp(), // Timestamp waktu voting
+        });
+
+        localStorage.removeItem("userToken");
+        // localStorage.removeItem("userName");
+
+        await updateDoc(doc(db, "xiistudents", xiistudentDoc.id), {
+          voted: true,
+        });
+        // return;
+      } else if (token.slice(0, 2) === "TS") {
         const q = query(collection(db, "teacher"), where("token", "==", token));
         const querySnapshot = await getDocs(q);
         let teacherDoc;
@@ -79,7 +108,6 @@ const VotePage = () => {
           votedAt: serverTimestamp(), // Timestamp waktu voting
         });
 
-        localStorage.removeItem("userToken");
         // localStorage.removeItem("userName");
 
         await updateDoc(doc(db, "teacher", teacherDoc.id), { voted: true });
@@ -117,6 +145,7 @@ const VotePage = () => {
       console.error("Error voting:", err);
       setError("Gagal mengirim suara, coba lagi.");
     } finally {
+      localStorage.removeItem("userToken");
       setSubmitLoading(false);
     }
   };
